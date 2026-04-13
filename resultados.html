@@ -117,6 +117,7 @@ body{min-height:100vh;max-width:480px;margin:0 auto;padding-bottom:40px;}
     <div class="tab active" data-tab="camp" onclick="switchTab(this)">🏆 Campeonato</div>
     <div class="tab" data-tab="s1" onclick="switchTab(this)">Stage 1</div>
     <div class="tab" data-tab="s2" onclick="switchTab(this)">Stage 2</div>
+    <div class="tab" data-tab="s3" onclick="switchTab(this)">Stage 3</div>
   </div>
 </div>
 
@@ -138,7 +139,7 @@ const SUPA_URL = 'https://lpwokaekgyuiykmllnkj.supabase.co';
 const SUPA_KEY = 'sb_publishable_S6fN0jJCTVe-Px8jOMkXaA_nWIq2Yl7';
 
 let currentTab = 'camp';
-let allData = { camp: [], s1: [], s2: [] };
+let allData = { camp: [], s1: [], s2: [], s3: [] };
 let filtered = [];
 
 // ── FORMAT ──
@@ -172,6 +173,11 @@ async function fetchData(){
       headers:{'apikey':SUPA_KEY,'Authorization':`Bearer ${SUPA_KEY}`}
     });
     allData.s2 = await rS2.json();
+
+    const rS3 = await fetch(`${SUPA_URL}/rest/v1/mejores_tiempos?stage=eq.3&order=tiempo_ms.asc`,{
+      headers:{'apikey':SUPA_KEY,'Authorization':`Bearer ${SUPA_KEY}`}
+    });
+    allData.s3 = await rS3.json();
 
     document.getElementById('loading').style.display='none';
     document.getElementById('board').style.display='block';
@@ -228,7 +234,8 @@ function renderCampRow(board,r,pos,posClass,isPodium,timeClass){
       <div class="rider-name">${r.nombre||'Anónimo'}</div>
       <div class="rider-meta">
         <span class="badge-s1">S1 ${fmt(r.tiempo_stage1)}</span>&nbsp;
-        <span class="badge-s2">S2 ${fmt(r.tiempo_stage2)}</span>
+        <span class="badge-s2">S2 ${fmt(r.tiempo_stage2)}</span>&nbsp;
+        <span class="badge-s3" style="font-size:9px;letter-spacing:.1em;background:rgba(255,214,0,.1);color:var(--yellow);border:1px solid rgba(255,214,0,.2);padding:2px 6px;border-radius:2px;display:inline-block;">S3 ${fmt(r.tiempo_stage3)}</span>
       </div>
     </div>
     <div class="rider-times">
@@ -284,7 +291,7 @@ function filterBoard(){ renderBoard(); }
 
 // ── SHARE ──
 function shareLeaderboard(){
-  const tabNames={camp:'Campeonato',s1:'Stage 1',s2:'Stage 2'};
+  const tabNames={camp:'Campeonato',s1:'Stage 1',s2:'Stage 2',s3:'Stage 3'};
   const url=`${window.location.origin}${window.location.pathname}?tab=${currentTab}`;
   const txt=`🏆 Leaderboard ${tabNames[currentTab]} — Crono System\n${url}`;
   if(navigator.share) navigator.share({title:`Crono System · ${tabNames[currentTab]}`,text:txt,url}).catch(()=>{});
@@ -293,7 +300,7 @@ function shareLeaderboard(){
 
 // ── DEEP LINK ──
 const urlTab=new URLSearchParams(window.location.search).get('tab');
-if(urlTab && ['camp','s1','s2'].includes(urlTab)){
+if(urlTab && ['camp','s1','s2','s3'].includes(urlTab)){
   currentTab=urlTab;
   document.querySelectorAll('.tab').forEach(t=>{
     t.classList.toggle('active', t.dataset.tab===urlTab);
