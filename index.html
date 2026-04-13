@@ -18,12 +18,22 @@
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="./assets/session.js"></script>
 <style>
 :root{--bg:#080808;--dark:#111;--dark2:#1a1a1a;--border:#1e1e1e;--green:#00ff41;--orange:#ff6b00;--yellow:#ffd600;--white:#e8e8e8;--grey:#444;}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{background:var(--bg);color:var(--white);font-family:'Barlow Condensed',sans-serif;min-height:100vh;}
 body{max-width:480px;margin:0 auto;padding:0 0 60px;}
+
+
+/* MAPA GENERAL */
+#overview-section{padding:0 16px 20px;}
+.overview-label{font-size:10px;letter-spacing:.35em;text-transform:uppercase;color:var(--grey);margin-bottom:10px;display:block;}
+.overview-desc{font-size:13px;font-weight:300;color:rgba(255,255,255,.5);line-height:1.7;margin-bottom:14px;}
+#overview-map{height:220px;border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+.leaflet-control-zoom,.leaflet-control-attribution{display:none;}
 
 /* HERO */
 #hero{padding:40px 24px 28px;position:relative;overflow:hidden;}
@@ -139,6 +149,13 @@ footer{text-align:center;padding:20px;font-size:10px;color:var(--grey);letter-sp
     </div>
   </div>
 </div>
+
+<div id="overview-section">
+  <span class="overview-label">El Campeonato</span>
+  <p class="overview-desc">3 especiales cronometradas en Lo Barnechea. Compite contra el reloj, acumula los mejores tiempos y entra al ranking general.</p>
+  <div id="overview-map"></div>
+</div>
+
 
 <p class="section-label" id="stages-label">Elige tu stage</p>
 
@@ -364,6 +381,28 @@ if (nombre) {
   document.getElementById('nombre-input').value = nombre;
 }
 actualizarUI();
+
+
+// ── MAPA GENERAL ──
+(function() {
+  const stages = [
+    { num:1, name:'S1 · LO BARNECHEA', lat:-33.34227, lon:-70.46563, color:'#00ff41' },
+    { num:2, name:'S2 · QUINCHAMALI',  lat:-33.36781, lon:-70.49662, color:'#ff6b00' },
+    { num:3, name:'S3 · LAS CONDES',   lat:-33.37532, lon:-70.49563, color:'#ffd600' },
+  ];
+  const map = L.map('overview-map', { zoomControl:false, attributionControl:false, dragging:false, scrollWheelZoom:false });
+  L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom:17 }).addTo(map);
+  stages.forEach(s => {
+    const icon = L.divIcon({
+      className:'',
+      html:`<div style="width:28px;height:28px;background:${s.color};clip-path:polygon(0 0,calc(100% - 7px) 0,100% 7px,100% 100%,7px 100%,0 calc(100% - 7px));display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px ${s.color}88;"><span style="font-size:11px;font-weight:900;color:#000;">S${s.num}</span></div>`,
+      iconSize:[28,28], iconAnchor:[14,14]
+    });
+    L.marker([s.lat, s.lon], { icon }).addTo(map).bindTooltip(s.name, { permanent:false, className:'', direction:'top' });
+  });
+  const bounds = L.latLngBounds(stages.map(s => [s.lat, s.lon]));
+  map.fitBounds(bounds, { padding:[30,30] });
+})();
 
 // ── BG CANVAS ──
 (function () {
