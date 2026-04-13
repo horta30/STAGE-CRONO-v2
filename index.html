@@ -313,11 +313,16 @@ function actualizarUI() {
     st3.textContent = `Mejor: ${fmt(t3.ms)}`; st3.style.color = 'var(--yellow)';
     btn3.textContent = '🔁 MEJORAR';
   }
+
+  // Destacar siguiente stage pendiente
+  if (!t1) {
     card1.classList.add('next-up');
     card1.insertAdjacentHTML('afterbegin', '<div class="next-badge">▶ SIGUIENTE</div>');
   } else if (!t2) {
     card2.classList.add('next-up');
     card2.insertAdjacentHTML('afterbegin', '<div class="next-badge">▶ SIGUIENTE</div>');
+  } else if (!t3) {
+    card3.style.boxShadow = '0 0 0 1px rgba(255,214,0,.3)';
   }
 
   // Campeonato — requiere S1+S2+S3
