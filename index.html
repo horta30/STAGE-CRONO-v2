@@ -31,7 +31,7 @@ body{max-width:480px;margin:0 auto;padding:0 0 60px;}
 #overview-section{padding:0 16px 20px;}
 .overview-label{font-size:10px;letter-spacing:.35em;text-transform:uppercase;color:var(--grey);margin-bottom:10px;display:block;}
 .overview-desc{font-size:13px;font-weight:300;color:rgba(255,255,255,.5);line-height:1.7;margin-bottom:14px;}
-#tracks-canvas{width:100%;height:260px;display:block;border-radius:4px;}
+#tracks-canvas{width:100%;height:260px;display:block;border-radius:4px;background:#0a0a0a;}
 
 /* HERO */
 #hero{padding:40px 24px 28px;position:relative;overflow:hidden;}
@@ -383,7 +383,7 @@ actualizarUI();
 
 
 // ── TRACKS ANIMADOS ──
-(function() {
+window.addEventListener('load', function() {
   const canvas = document.getElementById('tracks-canvas');
   const dpr = window.devicePixelRatio || 1;
 
