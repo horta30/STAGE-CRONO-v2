@@ -1,4 +1,4 @@
-const CACHE = 'stage-crono-v1';
+const CACHE = 'stage-crono-v3';
 const ASSETS = [
   './',
   './index.html',
