@@ -171,78 +171,20 @@ body{display:flex;flex-direction:column;font-family:'Barlow Condensed',sans-seri
 .rs-camp-time{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--yellow);}
 .rs-camp-sub{font-size:10px;color:var(--grey);letter-spacing:.1em;}
 
+
+/* BRÚJULA INICIO EN TOPBAR */
+#inicio-compass{display:none;align-items:center;gap:5px;background:var(--dark2);border:1px solid var(--border);padding:5px 9px;flex-shrink:0;}
+#inicio-compass.show{display:flex;}
+.ic-label{font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--grey);}
+#ic-arrow{font-size:16px;display:inline-block;transition:transform .3s ease;line-height:1;}
+
 .leaflet-control-zoom,.leaflet-control-attribution{display:none;}
 @keyframes uPulse{0%,100%{transform:scale(1);opacity:.6;}50%{transform:scale(2.4);opacity:0;}}
 
-/* NAV-TO-START SCREEN */
-#nav-screen{position:fixed;inset:0;z-index:1900;background:var(--bg);display:flex;flex-direction:column;transition:opacity .4s,visibility .4s;}
-#nav-screen.hidden{opacity:0;visibility:hidden;pointer-events:none;}
-#nav-topbar{flex-shrink:0;background:rgba(8,8,8,.97);border-bottom:1px solid var(--border);padding:0 12px;height:54px;display:flex;align-items:center;gap:10px;}
-.nav-stage-badge{font-size:9px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);border:1px solid rgba(255,255,255,.1);padding:3px 10px;border-radius:2px;flex-shrink:0;}
-.nav-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.06em;flex:1;text-align:center;}
-#nav-map{flex:1;position:relative;}
-#nav-leaflet{width:100%;height:100%;}
 
-/* BOTTOM PANEL */
-#nav-panel{flex-shrink:0;background:rgba(8,8,8,.97);border-top:1px solid var(--border);padding:14px 16px 20px;}
-.nav-row1{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
-.nav-arrow-wrap{width:56px;height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--dark2);border:1px solid var(--border);border-radius:50%;}
-#nav-arrow{transition:transform .3s ease;font-size:28px;}
-.nav-dist-block{flex:1;}
-.nav-dist{font-family:'Bebas Neue',sans-serif;font-size:48px;line-height:1;color:var(--accent);}
-.nav-dist-unit{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--grey);margin-top:2px;}
-.nav-status{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--grey);margin-top:4px;}
-.nav-status.close{color:var(--accent);}
-
-/* BOTONES INFERIORES */
-.nav-btns{display:flex;gap:8px;}
-.nav-btn{flex:1;padding:12px;border:none;border-radius:2px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.15em;cursor:pointer;transition:opacity .2s;}
-.nav-btn:active{opacity:.7;}
-.nav-btn-share{background:var(--dark2);color:var(--white);border:1px solid var(--border);}
-.nav-btn-gps{background:var(--accent);color:#000;}
-
-/* AUTO TRANSITION OVERLAY */
-#nav-ready{position:absolute;inset:0;z-index:10;background:rgba(8,8,8,.88);display:none;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
-#nav-ready.show{display:flex;}
-.nav-ready-icon{font-size:48px;}
-.nav-ready-txt{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);letter-spacing:.1em;}
-.nav-ready-sub{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.4);}
 </style>
 </head>
 <body>
-
-<!-- NAV TO START SCREEN -->
-<div id="nav-screen">
-  <div id="nav-topbar">
-    <div class="nav-stage-badge" id="nav-stage-badge">STAGE 1</div>
-    <div class="nav-title">IR AL INICIO</div>
-    <a href="./index.html" style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);text-decoration:none;border:1px solid var(--border);padding:5px 8px;">← HOME</a>
-  </div>
-  <div id="nav-map">
-    <div id="nav-leaflet"></div>
-    <div id="nav-ready">
-      <div class="nav-ready-icon">🟢</div>
-      <div class="nav-ready-txt">¡ESTÁS EN EL INICIO!</div>
-      <div class="nav-ready-sub">Activando cronómetro...</div>
-    </div>
-  </div>
-  <div id="nav-panel">
-    <div class="nav-row1">
-      <div class="nav-arrow-wrap">
-        <div id="nav-arrow">↑</div>
-      </div>
-      <div class="nav-dist-block">
-        <div class="nav-dist" id="nav-dist">---</div>
-        <div class="nav-dist-unit">metros al inicio</div>
-        <div class="nav-status" id="nav-status">Obteniendo GPS...</div>
-      </div>
-    </div>
-    <div class="nav-btns">
-      <button class="nav-btn nav-btn-share" onclick="shareInicioLocation()">📤 COMPARTIR INICIO</button>
-      <button class="nav-btn nav-btn-gps" onclick="goToSplash()">▶ TENGO EL INICIO</button>
-    </div>
-  </div>
-</div>
 
 <div id="splash">
   <canvas id="splash-canvas"></canvas>
@@ -262,11 +204,12 @@ body{display:flex;flex-direction:column;font-family:'Barlow Condensed',sans-seri
 
 <div id="topbar">
   <a href="./index.html" id="back-btn">← HOME</a>
+  <div id="inicio-compass"><span class="ic-label">INICIO</span><span id="ic-arrow">↑</span></div>
   <div id="chrono-wrap">
     <div id="chrono" class="waiting">00:00.0</div>
     <div id="chrono-label">En espera</div>
   </div>
-  <button id="reset-btn" onclick="cancelRun()" style="display:none">↺ ANULAR</button>
+  <button id="reset-btn" onclick="cancelRun()" style="display:none">↺ REINICIAR</button>
   <button id="gps-btn" onclick="toggleGPS()">
     <div class="gps-dot" id="gps-dot"></div>
     <span id="gps-label">GPS</span>
@@ -350,112 +293,6 @@ function distM(la1, lo1, la2, lo2) {
   const a = Math.sin(dLa / 2) ** 2 + Math.cos(la1 * Math.PI / 180) * Math.cos(la2 * Math.PI / 180) * Math.sin(dLo / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
-
-// ── NAV TO START ──
-document.getElementById('nav-stage-badge').textContent = `STAGE ${CT.meta.stage}`;
-
-// Mapa de navegación
-const navMap = L.map('nav-leaflet', { zoomControl: false, attributionControl: false });
-L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(navMap);
-
-// Marcador del inicio
-const inicioWP = CT.waypoints[0];
-const inicioIcon = L.divIcon({
-  className: '',
-  html: `<div style="width:32px;height:32px;background:var(--accent);clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(0,255,65,.5);"><span style="font-size:13px;font-weight:900;color:#000;">S</span></div>`,
-  iconSize: [32, 32], iconAnchor: [16, 16]
-});
-L.marker([inicioWP.lat, inicioWP.lon], { icon: inicioIcon }).addTo(navMap);
-navMap.setView([inicioWP.lat, inicioWP.lon], 14);
-
-// Marcador de posición del usuario en nav
-let navUserMarker = null;
-let navGpsWatch = null;
-let navHeading = 0;
-
-function bearingTo(lat1, lon1, lat2, lon2) {
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
-  const x = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180) -
-             Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos(dLon);
-  return ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
-}
-
-function startNavGPS() {
-  if (!navigator.geolocation) return;
-  navGpsWatch = navigator.geolocation.watchPosition(pos => {
-    const { latitude: lat, longitude: lon, heading: hdg } = pos.coords;
-    if (hdg !== null && !isNaN(hdg)) navHeading = hdg;
-
-    // Actualizar marcador usuario
-    const userIcon = L.divIcon({
-      className: '',
-      html: `<div style="width:14px;height:14px;border-radius:50%;background:#00ff41;border:2.5px solid #080808;box-shadow:0 0 10px rgba(0,255,65,.9);"></div>`,
-      iconSize: [14, 14], iconAnchor: [7, 7]
-    });
-    if (!navUserMarker) {
-      navUserMarker = L.marker([lat, lon], { icon: userIcon, zIndexOffset: 1000 }).addTo(navMap);
-      navMap.fitBounds([[lat, lon], [inicioWP.lat, inicioWP.lon]], { padding: [40, 40] });
-    } else {
-      navUserMarker.setLatLng([lat, lon]);
-    }
-
-    // Distancia al inicio
-    const d = distM(lat, lon, inicioWP.lat, inicioWP.lon);
-    document.getElementById('nav-dist').textContent = Math.round(d);
-
-    // Bearing hacia el inicio
-    const bearing = bearingTo(lat, lon, inicioWP.lat, inicioWP.lon);
-    const relBearing = ((bearing - navHeading) + 360) % 360;
-    document.getElementById('nav-arrow').style.transform = `rotate(${relBearing}deg)`;
-
-    // Status
-    const statusEl = document.getElementById('nav-status');
-    if (d < 50) {
-      statusEl.textContent = '¡Estás en el inicio!'; statusEl.className = 'nav-status close';
-    } else if (d < 150) {
-      statusEl.textContent = 'Casi llegando...'; statusEl.className = 'nav-status close';
-    } else {
-      statusEl.textContent = `Dirígete al punto de inicio`; statusEl.className = 'nav-status';
-    }
-
-    // Auto-transición al llegar a 80m
-    if (d <= 80) {
-      document.getElementById('nav-ready').classList.add('show');
-      setTimeout(() => goToSplash(), 2500);
-    }
-  }, () => {
-    document.getElementById('nav-status').textContent = 'Esperando señal GPS...';
-  }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
-}
-
-function goToSplash() {
-  if (navGpsWatch) navigator.geolocation.clearWatch(navGpsWatch);
-  document.getElementById('nav-screen').classList.add('hidden');
-  // El splash ya está listo
-}
-
-window.shareInicioLocation = function () {
-  const mapsUrl = `https://maps.google.com/?q=${inicioWP.lat},${inicioWP.lon}`;
-  const txt = `📍 *INICIO Stage ${CT.meta.stage} — ${CT.meta.nombre.toUpperCase()}*\n🗺 ${mapsUrl}\n\n_Stage Crono · Gravitas Solutions_`;
-  if (navigator.share) navigator.share({ title: `Inicio Stage ${CT.meta.stage}`, text: txt }).catch(() => {});
-  else navigator.clipboard.writeText(txt).then(() => alert('Copiado'));
-};
-
-// Arrancar GPS de navegación al cargar — opt-in: solo si lejos del inicio
-navigator.geolocation.getCurrentPosition(pos => {
-  const d = distM(pos.coords.latitude, pos.coords.longitude, inicioWP.lat, inicioWP.lon);
-  if (d > 150) {
-    startNavGPS();
-  } else {
-    // Ya está cerca — saltar directo al splash
-    document.getElementById('nav-screen').classList.add('hidden');
-  }
-}, () => {
-  // Sin GPS aún — mostrar nav screen por defecto
-  startNavGPS();
-}, { enableHighAccuracy: true, timeout: 5000, maximumAge: 10000 });
-
 
 (function buildSplitsBar() {
   const bar = document.getElementById('splits-bar');
@@ -613,6 +450,18 @@ function onPos(pos) {
   else document.getElementById('compass-needle').style.transform = `rotate(${lastBearing}deg)`;
   if (followMode) lmap.panTo([lat, lon], { animate: true, duration: .25, easeLinearity: 1 });
 
+  // Brújula hacia el inicio (solo en fase waiting)
+  if (S.phase === 'waiting' || S.phase === 'init') {
+    const compass = document.getElementById('inicio-compass');
+    compass.classList.add('show');
+    const b = bearingTo(lat, lon, CT.waypoints[0].lat, CT.waypoints[0].lon);
+    const rel = ((b - lastBearing) + 360) % 360;
+    document.getElementById('ic-arrow').style.transform = `rotate(${rel}deg)`;
+  } else {
+    document.getElementById('inicio-compass').classList.remove('show');
+  }
+
+
   if (S.phase === 'running') {
     const now = Date.now();
     if (!gpsTrack._last || now - gpsTrack._last > 5000) {
@@ -648,6 +497,15 @@ window.toggleFollow = function () {
     if (userMarker) { lmap.panTo(userMarker.getLatLng()); applyBearing(lastBearing); }
   } else { fb.classList.remove('on'); fb.textContent = '⊙ Seguirme'; }
 };
+
+// ── BEARING TO POINT ──
+function bearingTo(lat1, lon1, lat2, lon2) {
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
+  const x = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180) -
+             Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos(dLon);
+  return ((Math.atan2(y, x) * 180 / Math.PI) + 360) % 360;
+}
 
 // ── FORMAT ──
 function fmt(ms) { const s = Math.floor(ms / 1000), m = Math.floor(s / 60), ss = s % 60, t = Math.floor((ms % 1000) / 100); return `${String(m).padStart(2, '0')}:${String(ss).padStart(2, '0')}.${t}`; }
@@ -933,7 +791,7 @@ window.cancelRun = function () {
   document.getElementById('toast').classList.remove('show');
   document.querySelectorAll('.split-col').forEach(el => { el.classList.remove('done', 'next'); el.querySelector('.sc-time').textContent = '-:--'; });
   showToast('↩', 'ANULADO', '', 'Listo para nueva pasada', 'normal');
-  speak('Anulado. Listo para comenzar.', true);
+  speak('Reiniciado. Listo para comenzar.', true);
 };
 
 // ── SHARE ──
