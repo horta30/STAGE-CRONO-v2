@@ -372,16 +372,16 @@ Object.keys(ALL_TRACKS).forEach(num => {
   // Línea de contexto — tenue, sin interacción
   L.polyline(track, {
     color: col,
-    weight: 2,
-    opacity: 0.18,
+    weight: 3,
+    opacity: 0.6,
     interactive: false,
-    dashArray: '4 6',
+    dashArray: '6 5',
   }).addTo(lmap);
   // Punto de inicio de la otra stage
   const start = track[0];
   const startIcon = L.divIcon({
     className: '',
-    html: `<div style="width:10px;height:10px;background:${col};border-radius:50%;opacity:0.4;border:1px solid ${col};"></div>`,
+    html: `<div style="width:12px;height:12px;background:${col};border-radius:50%;opacity:0.8;border:2px solid ${col};box-shadow:0 0 6px ${col}88;"></div>`,
     iconSize: [10,10], iconAnchor: [5,5]
   });
   L.marker(start, { icon: startIcon, interactive: false, zIndexOffset: -100 }).addTo(lmap);
@@ -402,9 +402,11 @@ CT.waypoints.forEach(wp => {
   L.marker([wp.lat, wp.lon], { icon, zIndexOffset: 500 }).addTo(lmap);
 });
 // Fit bounds incluyendo todas las stages para contexto inicial
-const allPtsForBounds = Object.values(ALL_TRACKS).flat();
-lmap.fitBounds(L.latLngBounds(allPtsForBounds), { padding: [40, 40] });
-// Luego centrar en la stage activa al obtener GPS
+// Fit all 3 stages — delayed so map container has real dimensions on mobile
+setTimeout(() => {
+  const allPts = Object.values(ALL_TRACKS).flat();
+  lmap.fitBounds(L.latLngBounds(allPts), { padding: [50, 50], maxZoom: 14 });
+}, 200);
 
 
 window.setStyle = function (btn) {
@@ -484,7 +486,7 @@ function onPos(pos) {
     document.getElementById('splash').classList.add('hidden');
     S.phase = 'waiting';
     document.getElementById('chrono-label').textContent = 'Dirígete al INICIO';
-    lmap.panTo([lat, lon]); // preserva zoom del overview inicial
+    // GPS fix — no cambiar zoom, mantener vista general de las 3 stages
     const msg = _nombre
       ? `Atención ${_nombre}. Cronómetro activa al pasar el inicio. Pasa en movimiento.`
       : 'Atención. Cronómetro activa al pasar el inicio. Pasa en movimiento.';
