@@ -370,18 +370,26 @@ Object.keys(ALL_TRACKS).forEach(num => {
   const track = ALL_TRACKS[num];
   const col = ALL_COLORS[num];
   // Línea de contexto — tenue, sin interacción
+  // Glow effect
+  L.polyline(track, {
+    color: col,
+    weight: 8,
+    opacity: 0.15,
+    interactive: false,
+  }).addTo(lmap);
+  // Main line
   L.polyline(track, {
     color: col,
     weight: 3,
-    opacity: 0.6,
+    opacity: 0.85,
     interactive: false,
-    dashArray: '6 5',
+    dashArray: '8 4',
   }).addTo(lmap);
   // Punto de inicio de la otra stage
   const start = track[0];
   const startIcon = L.divIcon({
     className: '',
-    html: `<div style="width:12px;height:12px;background:${col};border-radius:50%;opacity:0.8;border:2px solid ${col};box-shadow:0 0 6px ${col}88;"></div>`,
+    html: `<div style="width:16px;height:16px;background:${col};border-radius:50%;opacity:1;border:2px solid #000;box-shadow:0 0 8px ${col};"></div>`,
     iconSize: [10,10], iconAnchor: [5,5]
   });
   L.marker(start, { icon: startIcon, interactive: false, zIndexOffset: -100 }).addTo(lmap);
@@ -405,8 +413,8 @@ CT.waypoints.forEach(wp => {
 // Fit all 3 stages — delayed so map container has real dimensions on mobile
 setTimeout(() => {
   const allPts = Object.values(ALL_TRACKS).flat();
-  lmap.fitBounds(L.latLngBounds(allPts), { padding: [50, 50], maxZoom: 14 });
-}, 200);
+  lmap.fitBounds(L.latLngBounds(allPts), { padding: [30, 30], maxZoom: 13 });
+}, 300);
 
 
 window.setStyle = function (btn) {
@@ -559,7 +567,6 @@ let rotationLocked = false;
 function lockRotation() {
   rotationLocked = true;
   if (lmap.touchRotate) lmap.touchRotate.disable();
-  // Activate Waze mode
   wazeMode = true;
   followMode = true;
   document.getElementById('waze-btn').classList.add('on');
