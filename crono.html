@@ -484,7 +484,7 @@ function onPos(pos) {
     document.getElementById('splash').classList.add('hidden');
     S.phase = 'waiting';
     document.getElementById('chrono-label').textContent = 'Dirígete al INICIO';
-    lmap.setView([lat, lon], 16);
+    lmap.panTo([lat, lon]); // preserva zoom del overview inicial
     const msg = _nombre
       ? `Atención ${_nombre}. Cronómetro activa al pasar el inicio. Pasa en movimiento.`
       : 'Atención. Cronómetro activa al pasar el inicio. Pasa en movimiento.';
