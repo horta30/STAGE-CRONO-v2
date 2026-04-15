@@ -181,6 +181,14 @@ body{display:flex;flex-direction:column;font-family:'Barlow Condensed',sans-seri
 #north-needle{transition:transform .25s ease;}
 #ic-arrow{font-size:16px;display:inline-block;transition:transform .3s ease;line-height:1;}
 
+
+/* TRANSFER MODE BANNER */
+#transfer-banner{display:none;position:absolute;bottom:72px;left:50%;transform:translateX(-50%);z-index:700;background:rgba(8,8,8,.95);border:1px solid var(--orange);border-radius:20px;padding:8px 18px;white-space:nowrap;text-align:center;}
+#transfer-banner.show{display:block;}
+.tb-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);margin-bottom:2px;}
+.tb-dist{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--white);line-height:1;}
+.tb-unit{font-size:9px;color:var(--grey);margin-left:3px;}
+
 .leaflet-control-zoom,.leaflet-control-attribution{display:none;}
 @keyframes uPulse{0%,100%{transform:scale(1);opacity:.6;}50%{transform:scale(2.4);opacity:0;}}
 
@@ -236,6 +244,7 @@ body{display:flex;flex-direction:column;font-family:'Barlow Condensed',sans-seri
       <div><div class="toast-wp" id="toast-wp"></div><div class="toast-time" id="toast-time"></div><div class="toast-sub" id="toast-sub"></div></div>
     </div>
   </div>
+  <div id="transfer-banner"><div class="tb-label" id="tb-label">NAVEGANDO AL INICIO S2</div><div><span class="tb-dist" id="tb-dist">---</span><span class="tb-unit">m</span></div></div>
   <div id="prox-ring">📍 <span id="prox-dist">---</span><span style="font-size:9px;margin-left:2px">m</span></div>
   <div id="compass" onclick="resetNorth()">
     <svg id="compass-needle" width="22" height="22" viewBox="0 0 22 22">
@@ -590,6 +599,16 @@ function unlockRotation() {
 }
 
 
+
+// Coordenadas de inicio de cada stage
+const STAGE_STARTS = {
+  1: { lat: CT.waypoints[0].lat, lon: CT.waypoints[0].lon },
+  2: { lat: -33.367808, lon: -70.496619 },
+  3: { lat: -33.37532057070467, lon: -70.49563308507324 },
+};
+let transferToSeg = null;
+let transferAlertDone = false;
+
 // ENLACES ENTRE STAGES
 const ENLACES = {
   '1_2': [[-33.36239146614147, -70.48518950073085], [-33.36256875306852, -70.4858245185263], [-33.36271497453848, -70.48638087391164], [-33.36279547496975, -70.48663570052764], [-33.36280865030985, -70.48693203367873], [-33.3627837834434, -70.48707443006893], [-33.36281710646483, -70.48745891570766], [-33.36294197189095, -70.48765223025153], [-33.36301861608305, -70.48771510238248], [-33.36323142119821, -70.48786543338987], [-33.36352269974397, -70.48810088508941], [-33.36365946672544, -70.48823341004578], [-33.3638087442887, -70.48841589067283], [-33.36387743307182, -70.48861962842132], [-33.36388675142837, -70.4889097506588], [-33.36370121338042, -70.4906506090256], [-33.36368398764243, -70.49088587056879], [-33.36371172103238, -70.49109633878656], [-33.36376362527248, -70.49131413593938], [-33.36383659970296, -70.49153789978183], [-33.36388883956145, -70.49164242564557], [-33.3639262124454, -70.49175260762878], [-33.36394670035914, -70.49195225972312], [-33.36391595573278, -70.49219260771682], [-33.36388322497848, -70.49242568710552], [-33.36383456406273, -70.49275740540033], [-33.36378524218237, -70.49304225363642], [-33.36383704277856, -70.49314993820515], [-33.36394608586245, -70.4932442813704], [-33.36417031774332, -70.49332000786185], [-33.36430509721483, -70.49345638583115], [-33.36442674681997, -70.49362315247564], [-33.36450290597384, -70.4938627773842], [-33.36460228585266, -70.49414836704126], [-33.364756391627, -70.49439244918327], [-33.36487596324881, -70.49449417380175], [-33.36501602233312, -70.49457115612469], [-33.36517977703132, -70.49463090364331], [-33.36536016660839, -70.49476295966154], [-33.36549358884756, -70.49489817024416], [-33.36583417752879, -70.4953461725616], [-33.3661120307022, -70.49571721505394], [-33.36675808282272, -70.49650341489678], [-33.366900255476, -70.4967136800982], [-33.36697678570169, -70.49680170218062], [-33.36709274958545, -70.49683236518658], [-33.36727959530728, -70.49680130520503], [-33.3674121917064, -70.49676031292744]],
@@ -599,10 +618,13 @@ const ENLACES = {
 // Dibujar enlaces siempre - linea punteada tenue
 const enlaceLines = {};
 Object.keys(ENLACES).forEach(key => {
+  // Glow
+  L.polyline(ENLACES[key], { color: 'rgba(255,255,255,0.1)', weight: 8, interactive: false }).addTo(lmap);
+  // Line
   enlaceLines[key] = L.polyline(ENLACES[key], {
-    color: 'rgba(255,255,255,0.2)',
-    weight: 2,
-    dashArray: '6 8',
+    color: 'rgba(255,255,255,0.55)',
+    weight: 2.5,
+    dashArray: '8 6',
     interactive: false,
   }).addTo(lmap);
 });
@@ -694,6 +716,30 @@ const S = {
 
 // ── PROCESS POSITION ──
 function processPos(lat, lon) {
+
+  if (S.phase === 'transfer' && transferToSeg) {
+    const target = STAGE_STARTS[transferToSeg];
+    const d = distM(lat, lon, target.lat, target.lon);
+
+    // Update banner distance
+    document.getElementById('tb-dist').textContent = Math.round(d);
+
+    // Alert at 100m
+    if (d <= 100 && !transferAlertDone) {
+      transferAlertDone = true;
+      speak(`Inicio Stage ${transferToSeg} en 100 metros. Prepárate.`, true);
+      showToast('⚡', `INICIO S${transferToSeg} EN 100m`, '', 'Prepárate', 'normal');
+    }
+
+    // Auto-start next stage at radio
+    const radio = transferToSeg === 2 ? 30 : 30;
+    if (d <= radio) {
+      document.getElementById('transfer-banner').classList.remove('show');
+      window.location.href = `./crono.html?seg=${transferToSeg}`;
+    }
+    return;
+  }
+
   if (S.phase === 'finished') return;
 
   if (S.phase === 'waiting') {
@@ -866,8 +912,8 @@ function showResult(totalMs) {
     <button class="rs-share" onclick="shareResult()">📤 COMPARTIR POR WHATSAPP</button>
     <div class="rs-actions">
       <button class="rs-btn rs-btn-retry" onclick="resetSession()">🔁 REINTENTAR</button>
-      <button class="rs-btn rs-btn-next" style="background:${hasNext ? 'var(--orange)' : 'var(--yellow)'}; color:#000;" onclick="${hasNext ? `goStage(${nextSeg})` : 'goHome()'}">
-        ${hasNext ? `➡️ STAGE ${nextSeg}` : '🏆 CAMPEONATO'}
+      <button class="rs-btn rs-btn-next" style="background:${hasNext ? 'var(--orange)' : 'var(--yellow)'}; color:#000;" onclick="${hasNext ? `startTransfer(${nextSeg})` : 'goLeaderboard()'}">
+        ${hasNext ? `➡️ IR A STAGE ${nextSeg}` : '🏆 VER RANKING'}
       </button>
     </div>
     <div class="rs-nav-row">
@@ -879,6 +925,37 @@ function showResult(totalMs) {
 }
 
 // ── NAVEGACIÓN POST-ESPECIAL ──
+
+
+window.startTransfer = function(toSeg) {
+  transferToSeg = toSeg;
+  transferAlertDone = false;
+  S.phase = 'transfer';
+
+  // Close result screen
+  document.getElementById('result-screen').classList.remove('show');
+
+  // Show transfer banner
+  const banner = document.getElementById('transfer-banner');
+  const label = document.getElementById('tb-label');
+  label.textContent = `NAVEGANDO AL INICIO S${toSeg}`;
+  banner.classList.add('show');
+
+  // Resaltar enlace correspondiente
+  resaltarEnlace(CT.meta.stage);
+
+  // Activate waze + follow
+  wazeMode = true; followMode = true;
+  document.getElementById('waze-btn').classList.add('on');
+  document.getElementById('waze-btn').textContent = '🧭 Waze';
+  document.getElementById('follow-btn').classList.add('on');
+  document.getElementById('follow-btn').textContent = '⊙ Siguiendo';
+
+  // Chrono label
+  document.getElementById('chrono').textContent = '--:--.-';
+  document.getElementById('chrono').className = 'waiting';
+  document.getElementById('chrono-label').textContent = `→ INICIO S${toSeg}`;
+};
 
 window.abrirMapsAlInicio = function(seg) {
   const inicios = {
